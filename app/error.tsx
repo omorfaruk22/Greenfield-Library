@@ -1,0 +1,4 @@
+'use client';
+import { useEffect } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+export default function GlobalError({error,reset}:{error:Error&{digest?:string};reset:()=>void}){useEffect(()=>{console.error('[application error]',error);},[error]);return <main className="flex min-h-screen items-center justify-center px-5" style={{background:'var(--page)'}}><section className="panel max-w-md p-8 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><AlertTriangle size={26}/></div><h1 className="mt-5 text-2xl font-bold">Something went wrong</h1><p className="mt-2 text-sm leading-6 muted">The page couldn't finish loading. Please try again; if the problem continues, contact your system administrator.</p><button className="btn-primary mt-6" onClick={()=>reset()}><RefreshCw size={16}/> Try again</button></section></main>}

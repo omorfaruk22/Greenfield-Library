@@ -1,0 +1,26 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { BookOpen, ArrowRight, LibraryBig, ShieldCheck, Search, Users } from 'lucide-react';
+import { getCurrentUser } from '@/lib/auth';
+
+export default async function HomePage() {
+  const user = await getCurrentUser();
+  if (user) redirect(user.role === 'Member' ? '/member/dashboard' : '/admin/dashboard');
+  return <main className="relative flex min-h-screen items-center overflow-hidden px-5 py-14" style={{ background: 'var(--page)' }}>
+    <div className="pointer-events-none absolute -right-32 -top-40 h-[560px] w-[560px] rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(8,132,92,.13), transparent 68%)' }} />
+    <div className="relative mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
+      <section><div className="mb-8 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold" style={{ borderColor: 'var(--line)', background: 'var(--surface)', color: 'var(--primary)' }}><span className="h-2 w-2 rounded-full" style={{ background: 'var(--primary)' }} /> A calmer way to run your library</div>
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg" style={{ background: 'var(--primary)' }}><LibraryBig size={28} /></div>
+        <h1 className="max-w-2xl text-5xl font-bold leading-[1.07] tracking-[-.045em] sm:text-6xl">Every book.<br /><span style={{ color: 'var(--primary)' }}>One thoughtful</span><br />workspace.</h1>
+        <p className="mt-6 max-w-lg text-base leading-7 muted">A modern library management platform to organize your collection, support readers, and keep every circulation detail in good order.</p>
+        <div className="mt-9 flex flex-wrap gap-3"><Link href="/login" className="btn-primary px-5 py-3">Sign in to workspace <ArrowRight size={16} /></Link><Link href="/register" className="btn-secondary px-5 py-3">Join as a member</Link></div>
+        <div className="mt-11 flex flex-wrap gap-x-6 gap-y-3 text-xs muted"><span className="flex items-center gap-2"><ShieldCheck size={15} style={{ color: 'var(--primary)' }} /> Role-based access</span><span className="flex items-center gap-2"><Search size={15} style={{ color: 'var(--primary)' }} /> Searchable catalog</span><span className="flex items-center gap-2"><Users size={15} style={{ color: 'var(--primary)' }} /> Member-first workflows</span></div>
+      </section>
+      <section className="relative mx-auto w-full max-w-[520px]">
+        <div className="panel relative overflow-hidden p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-xs muted">Collection overview</p><p className="mt-1 text-lg font-bold">Library at a glance</p></div><div className="rounded-xl p-2.5" style={{ background: 'rgba(8,132,92,.1)', color: 'var(--primary)' }}><BookOpen size={22} /></div></div>
+          <div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-2xl border p-4" style={{ borderColor: 'var(--line)', background: 'var(--page)' }}><p className="text-xs muted">Book collection</p><div className="mt-2 flex items-end gap-2"><span className="text-3xl font-bold">∞</span><span className="mb-1 text-xs muted">scalable catalog</span></div><div className="mt-4 h-1.5 overflow-hidden rounded-full" style={{ background: 'var(--line)' }}><div className="h-full w-3/4 rounded-full" style={{ background: 'var(--primary)' }} /></div></div><div className="rounded-2xl border p-4" style={{ borderColor: 'var(--line)', background: 'var(--page)' }}><p className="text-xs muted">Circulation</p><div className="mt-2 text-3xl font-bold">24/7</div><p className="mt-1 text-xs muted">Records stay organized</p><div className="mt-4 flex gap-1">{[40, 60, 35, 76, 52, 88, 65, 48, 78, 57, 90, 68].map((height, i) => <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${height / 2}px`, background: `rgba(8,132,92,${.2 + i * .055})` }} />)}</div></div></div>
+          <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: 'var(--line)' }}><div className="flex items-center justify-between"><p className="font-semibold">Designed for people who love books</p><span className="rounded-lg px-2 py-1 text-[10px] font-bold" style={{ background: 'rgba(8,132,92,.1)', color: 'var(--primary)' }}>LMS</span></div><div className="mt-4 space-y-3">{[{icon: BookOpen,title:'Catalog & inventory',desc:'Know what is on the shelf'},{icon: Users,title:'Members & circulation',desc:'Keep issue and return workflows clear'},{icon: ShieldCheck,title:'Responsible access',desc:'Admin, librarian and member roles'}].map(({icon: Icon,title,desc})=><div key={title} className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{background:'var(--page)',color:'var(--primary)'}}><Icon size={17}/></div><div><p className="text-xs font-semibold">{title}</p><p className="mt-0.5 text-[11px] muted">{desc}</p></div><ArrowRight size={14} className="ml-auto muted"/></div>)}</div></div>
+        </div><div className="absolute -bottom-5 -left-5 -z-10 h-28 w-28 rounded-3xl" style={{ background: 'rgba(8,132,92,.12)' }} /></section>
+    </div>
+  </main>;
+}

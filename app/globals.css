@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; --page: #f5f7f6; --surface: #ffffff; --ink: #17221f; --muted: #75827c; --line: #e4ebe7; --primary: #07845c; --primary-dark: #066b4b; }
+html.dark { color-scheme: dark; --page: #0e1714; --surface: #14211c; --ink: #e8f2ed; --muted: #9aaca3; --line: #253a31; --primary: #26bf86; --primary-dark: #1ba875; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+:focus-visible { outline: 3px solid rgba(8,132,92,.28); outline-offset: 2px; }
+@layer components {
+  .panel { @apply rounded-2xl border shadow-soft; background: var(--surface); border-color: var(--line); }
+  .input { @apply w-full rounded-xl border px-3 py-2.5 outline-none transition; background: var(--surface); border-color: var(--line); color: var(--ink); }
+  .input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8,132,92,.10); }
+  .label { @apply mb-1.5 block text-xs font-semibold; color: var(--muted); }
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50; background: var(--primary); }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition; border-color: var(--line); background: var(--surface); }
+  .btn-secondary:hover { background: rgba(125,145,135,.08); }
+  .muted { color: var(--muted); }
+  .table-th { @apply px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider; color: var(--muted); background: rgba(125,145,135,.06); }
+  .table-td { @apply border-t px-4 py-3.5 align-middle text-sm; border-color: var(--line); }
+}

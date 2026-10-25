@@ -1,0 +1,3 @@
+import Link from 'next/link';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
+export default function AccessDeniedPage(){return <main className="flex min-h-screen items-center justify-center px-5" style={{background:'var(--page)'}}><div className="panel max-w-md p-9 text-center"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><ShieldAlert size={27}/></div><h1 className="mt-5 text-2xl font-bold">Access restricted</h1><p className="mt-2 text-sm leading-6 muted">Your account does not have permission to view this area. If you believe this is an error, contact your library administrator.</p><Link href="/" className="btn-primary mt-6"><ArrowLeft size={16}/> Return to home</Link></div></main>}

@@ -1,0 +1,4 @@
+import { UserRound } from 'lucide-react';
+import { SectionHeading } from '@/components/section-heading';
+import { ResourceManager } from '@/components/resource-manager';
+export default function AuthorsPage(){return <div className="space-y-5"><SectionHeading title="Author directory" description="Manage author profiles and keep book attribution consistent." icon={UserRound}/><ResourceManager title="Authors" singular="Author" endpoint="/api/metadata/authors" fields={[{name:'name',label:'Author name',required:true},{name:'biography',label:'Biography',type:'textarea'},{name:'nationality',label:'Nationality'},{name:'birthDate',label:'Date of birth',type:'date'},{name:'imageUrl',label:'Portrait image URL',type:'url'}]} columns={[{key:'name',label:'Author'},{key:'nationality',label:'Nationality'},{key:'birthDate',label:'Date of birth'},{key:'createdAt',label:'Added'}]}/></div>}

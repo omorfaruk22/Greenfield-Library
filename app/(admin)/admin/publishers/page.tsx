@@ -1,0 +1,4 @@
+import { Building2 } from 'lucide-react';
+import { SectionHeading } from '@/components/section-heading';
+import { ResourceManager } from '@/components/resource-manager';
+export default function PublishersPage(){return <div className="space-y-5"><SectionHeading title="Publisher directory" description="Maintain publisher names and optional contact details for the collection." icon={Building2}/><ResourceManager title="Publishers" singular="Publisher" endpoint="/api/metadata/publishers" fields={[{name:'name',label:'Publisher name',required:true},{name:'email',label:'Contact email',type:'email'},{name:'phone',label:'Phone'},{name:'address',label:'Address',type:'textarea'},{name:'website',label:'Website',type:'url'}]} columns={[{key:'name',label:'Publisher'},{key:'email',label:'Email'},{key:'phone',label:'Phone'},{key:'website',label:'Website'}]}/></div>}
