@@ -24,7 +24,7 @@ export default async function MemberBookDetailsPage({ params }: Context) {
   const publisherDoc = record.publisherId as unknown as PopulatedPublisher | null;
   return <MemberBookDetail book={{
     id: String(record._id), title: record.title, subtitle: record.subtitle || '', isbn: record.isbn || '', language: record.language || 'English', edition: record.edition || '',
-    publicationYear: record.publicationYear, description: record.description || '', coverImageUrl: record.coverImageUrl || '', shelfLocation: record.shelfLocation || '',
+    publicationYear: record.publicationYear ?? undefined, description: record.description || '', coverImageUrl: record.coverImageUrl || '', shelfLocation: record.shelfLocation || '',
     totalCopies: record.totalCopies, availableCopies: record.availableCopies, authors,
     category: categoryDoc ? { id: String(categoryDoc._id), name: categoryDoc.name, slug: categoryDoc.slug } : null,
     publisher: publisherDoc ? { id: String(publisherDoc._id), name: publisherDoc.name } : null,

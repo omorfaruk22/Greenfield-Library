@@ -31,7 +31,7 @@ export async function POST(request: Request, context: Context) {
     if (!parsed.success) return NextResponse.json({ error: parsed.message, details: parsed.details }, { status: 422 });
     await connectDB();
     const item = await model.create(parsed.data as never);
-    await writeAuditLog({ actor: access.user, action: `${resource.slice(0, -1)}.created`, resourceType: resource, resourceId: String((item as { _id: unknown })._id), after: parsed.data });
+    await writeAuditLog({ actor: access.user, action: `${resource.slice(0, -1)}.created`, resourceType: resource, resourceId: String((item as unknown as { _id: unknown })._id), after: parsed.data });
     return NextResponse.json({ item }, { status: 201 });
   } catch (error) {
     if (isDuplicateKey(error)) return NextResponse.json({ error: 'A record with this name or identifier already exists.' }, { status: 409 });
