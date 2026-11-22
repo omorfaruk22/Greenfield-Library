@@ -29,6 +29,8 @@
    npm run seed
    ```
 
+   ওই email যদি আগে থেকেই Member account হিসেবে থাকে, normal seed access পরিবর্তন করবে না। তখন সচেতনভাবে ওই account-কে Admin করে password sync করতে চালাও: `npm run seed -- --reset-admin`।
+
 7. Website চালাতে:
 
    ```bash

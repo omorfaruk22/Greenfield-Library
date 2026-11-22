@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { loadEnvConfig } from '@next/env';
 import Book from '../models/Book';
 import Author from '../models/Author';
 import Category from '../models/Category';
@@ -8,19 +9,29 @@ import User from '../models/User';
 import LibrarySettings from '../models/LibrarySettings';
 
 async function main() {
+  loadEnvConfig(process.cwd());
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error('MONGODB_URI is required. Copy .env.example to .env.local and configure your database.');
   const adminName = process.env.SEED_ADMIN_NAME?.trim() || 'Library Administrator';
   const adminEmail = process.env.SEED_ADMIN_EMAIL?.toLowerCase().trim();
   const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const resetAdmin = process.argv.includes('--reset-admin');
   if (!adminEmail || !adminPassword || adminPassword.length < 12) throw new Error('Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least 12 characters before seeding.');
   await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
   try {
-    const [adminExists, categoriesExist] = await Promise.all([User.exists({ email: adminEmail }), Category.exists({})]);
-    if (!adminExists) {
+    const [existingAdmin, categoriesExist] = await Promise.all([User.findOne({ email: adminEmail }), Category.exists({})]);
+    if (!existingAdmin) {
       await User.create({ name: adminName, email: adminEmail, passwordHash: await bcrypt.hash(adminPassword, 12), role: 'Admin', status: 'Active' });
-      console.log(`Created administrator account for ${adminEmail}.`);
-    } else console.log(`Administrator ${adminEmail} already exists; leaving its credentials unchanged.`);
+      console.log('Created the configured administrator account.');
+    } else if (resetAdmin) {
+      existingAdmin.passwordHash = await bcrypt.hash(adminPassword, 12);
+      existingAdmin.role = 'Admin';
+      existingAdmin.status = 'Active';
+      await existingAdmin.save();
+      console.log('Promoted and reset the configured administrator account.');
+    } else if (existingAdmin.role !== 'Admin') {
+      throw new Error('SEED_ADMIN_EMAIL belongs to a non-admin account. Use "npm run seed -- --reset-admin" to explicitly promote it and set the configured password.');
+    } else console.log('Administrator account already exists; leaving its credentials unchanged.');
 
     const categorySeeds = [
       { name: 'Fiction', slug: 'fiction', description: 'Novels, short stories, and imaginative literature.' },

@@ -107,6 +107,8 @@ For a step-by-step Windows setup, see [`SETUP-BANGLA.md`](./SETUP-BANGLA.md).
    npm run seed
    ```
 
+   If the configured administrator email already belongs to a non-admin account, the normal seed stops instead of silently changing access. To explicitly promote that account and set its password from `SEED_ADMIN_PASSWORD`, run `npm run seed -- --reset-admin`.
+
 8. Start development:
 
    ```bash
@@ -117,7 +119,7 @@ For a step-by-step Windows setup, see [`SETUP-BANGLA.md`](./SETUP-BANGLA.md).
 
 ### Sample data
 
-The seed creates fictional book and author records for development and testing. It is idempotent for its seed keys and does not erase existing collections. It creates an administrator only if that email does not already exist; it will not silently reset an existing admin password. It does not create or print a reusable hard-coded production credential.
+The seed creates fictional book and author records for development and testing. It is idempotent for its seed keys and does not erase existing collections. It creates an administrator only if that email does not already exist; it will not silently reset an existing admin password. The explicit `--reset-admin` option promotes the configured email to Admin, activates it and resets its password from the local environment. It does not create or print a reusable hard-coded production credential.
 
 ## Commands
 
