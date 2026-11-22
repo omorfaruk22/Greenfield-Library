@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import {
   UserRound, Users, X, type LucideIcon,
 } from 'lucide-react';
 import type { SafeUser, UserRole } from '@/types';
+import { clearApiRequestCache, prefetchApiRequest } from '@/lib/api-client';
 
 type MenuItem = { label: string; href: string; icon: LucideIcon; group?: string };
 const adminItems: MenuItem[] = [
@@ -42,6 +43,28 @@ const memberItems: MenuItem[] = [
   { label: 'My profile', href: '/member/profile', icon: UserRound, group: 'Account' },
 ];
 
+const pageDataPrefetch: Record<string, string[]> = {
+  '/admin/members': ['/api/members?page=1&pageSize=10'],
+  '/admin/borrowings': ['/api/borrowings?page=1&pageSize=10&status=active&q=', '/api/members?page=1&pageSize=100', '/api/books?page=1&pageSize=100&availability=available'],
+  '/admin/returns': ['/api/borrowings?page=1&pageSize=10&status=active&q=', '/api/members?page=1&pageSize=100', '/api/books?page=1&pageSize=100&availability=available'],
+  '/admin/reservations': ['/api/reservations?page=1&pageSize=10'],
+  '/admin/fines': ['/api/borrowings?status=active&overdue=true&page=1&pageSize=100&q=', '/api/fines?page=1&pageSize=10'],
+  '/admin/payments': ['/api/payments?page=1&pageSize=10'],
+  '/admin/authors': ['/api/metadata/authors?page=1&pageSize=10'],
+  '/admin/categories': ['/api/metadata/categories?page=1&pageSize=10'],
+  '/admin/publishers': ['/api/metadata/publishers?page=1&pageSize=10'],
+  '/admin/notifications': ['/api/notifications?page=1&pageSize=50'],
+  '/admin/users': ['/api/users?page=1&pageSize=10'],
+  '/admin/settings': ['/api/settings'],
+  '/admin/audit-logs': ['/api/audit-logs?page=1&pageSize=10'],
+  '/member/catalog': ['/api/books?page=1&pageSize=12&q='],
+  '/member/my-books': ['/api/borrowings?page=1&pageSize=10&status=active&q='],
+  '/member/my-reservations': ['/api/reservations?page=1&pageSize=10'],
+  '/member/my-fines': ['/api/fines?page=1&pageSize=10', '/api/payments?page=1&pageSize=10'],
+  '/member/notifications': ['/api/notifications?page=1&pageSize=50'],
+  '/member/profile': ['/api/member/profile'],
+};
+
 export function AppShell({ user, children }: { user: SafeUser; children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -49,6 +72,7 @@ export function AppShell({ user, children }: { user: SafeUser; children: React.R
   const [collapsed, setCollapsed] = useState(false);
   const [dark, setDark] = useState(false);
   const [query, setQuery] = useState('');
+  const prefetchedMenu = useRef(new Set<string>());
   const items = user.role === 'Member' ? memberItems : user.role === 'Admin' ? adminItems : adminItems.filter((item) => !['/admin/users', '/admin/settings', '/admin/audit-logs'].includes(item.href));
 
   useEffect(() => {
@@ -68,6 +92,7 @@ export function AppShell({ user, children }: { user: SafeUser; children: React.R
     try {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error('Could not sign out. Try again.');
+      clearApiRequestCache();
       toast.success('You have signed out.');
       router.replace('/login'); router.refresh();
     } catch (error) { toast.error(error instanceof Error ? error.message : 'Sign out failed.'); }
@@ -77,6 +102,12 @@ export function AppShell({ user, children }: { user: SafeUser; children: React.R
     const value = query.trim();
     if (!value) return;
     router.push(user.role === 'Member' ? `/member/search?q=${encodeURIComponent(value)}` : `/admin/search?q=${encodeURIComponent(value)}`);
+  }
+  function prefetchMenuItem(item: MenuItem) {
+    if (prefetchedMenu.current.has(item.href)) return;
+    prefetchedMenu.current.add(item.href);
+    router.prefetch(item.href);
+    pageDataPrefetch[item.href]?.forEach(prefetchApiRequest);
   }
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => <aside className={`flex h-full flex-col border-r ${mobile ? 'w-[276px]' : collapsed ? 'w-[84px]' : 'w-[252px]'} transition-[width] duration-200`} style={{ background: 'var(--surface)', borderColor: 'var(--line)' }}>
@@ -92,7 +123,7 @@ export function AppShell({ user, children }: { user: SafeUser; children: React.R
         return <div key={item.href}>
           {item.group && <p className={`px-3 pb-2 pt-4 text-[10px] font-bold uppercase tracking-[.16em] muted ${index === 0 ? '!pt-1' : ''}`}>{mobile || !collapsed ? item.group : ''}</p>}
           {!item.group && index > 0 && prevGroup && null}
-          <Link onClick={() => mobile && setMobileOpen(false)} href={item.href} title={mobile || !collapsed ? item.label : item.label} className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition ${active ? 'text-white shadow-sm' : 'hover:bg-black/[.04] dark:hover:bg-white/[.05]'}`} style={active ? { background: 'var(--primary)' } : { color: 'var(--muted)' }}>
+          <Link prefetch={false} onMouseEnter={() => prefetchMenuItem(item)} onFocus={() => prefetchMenuItem(item)} onTouchStart={() => prefetchMenuItem(item)} onClick={() => mobile && setMobileOpen(false)} href={item.href} title={item.label} className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition ${active ? 'text-white shadow-sm' : 'hover:bg-black/[.04] dark:hover:bg-white/[.05]'}`} style={active ? { background: 'var(--primary)' } : { color: 'var(--muted)' }}>
             <item.icon size={18} strokeWidth={active ? 2.2 : 1.8} className="shrink-0" />
             {(mobile || !collapsed) && <><span className="flex-1">{item.label}</span>{active && <span className="h-1.5 w-1.5 rounded-full bg-white/80" />}</>}
           </Link>
