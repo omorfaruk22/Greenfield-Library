@@ -1,5 +1,5 @@
 import { z } from 'zod';
-export const loginSchema = z.object({ email: z.string().email().max(254).transform((v) => v.toLowerCase().trim()), password: z.string().min(1).max(200), remember: z.boolean().optional().default(false) });
+export const loginSchema = z.object({ email: z.string().email().max(254).transform((v) => v.toLowerCase().trim()), password: z.string().min(1).max(200), remember: z.boolean().optional().default(false), portal: z.enum(['Admin', 'Librarian', 'Member']).optional() });
 export const registerSchema = z.object({ name: z.string().trim().min(2).max(100), email: z.string().email().max(254).transform((v) => v.toLowerCase().trim()), password: z.string().min(10, 'Password must have at least 10 characters').max(200), phone: z.string().trim().max(30).optional().default('') });
 
 export const passwordChangeSchema = z.object({

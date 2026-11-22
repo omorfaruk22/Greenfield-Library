@@ -19,6 +19,10 @@ export async function POST(request: Request) {
     const user = await User.findOne({ email: parsed.data.email }).select('+passwordHash');
     const passwordMatches = user ? await verifyPassword(parsed.data.password, user.passwordHash) : false;
     if (!user || !passwordMatches || user.status !== 'Active') return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+    if (parsed.data.portal && user.role !== parsed.data.portal) {
+      const portalLabel = parsed.data.portal === 'Librarian' ? 'Staff' : parsed.data.portal;
+      return NextResponse.json({ error: `This account cannot use the ${portalLabel} sign-in. Choose the portal that matches your account role.` }, { status: 403 });
+    }
     user.lastLoginAt = new Date();
     await user.save();
     await createSession(user._id.toString(), request.headers.get('user-agent') || '', parsed.data.remember);
